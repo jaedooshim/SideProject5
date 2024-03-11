@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Member {
+  id            String       @id @default(uuid())
+  name          String       @db.VarChar()
+  phoneNumber   String       @unique @map("phone_number") @db.VarChar()
+  email         String       @unique @db.VarChar()
+  password      String       @db.VarChar()
+  isValidPhone  Boolean      @default(true) @map("is_valid_phone")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime?    @updatedAt @map("updated_at")
+  deletedAt     DateTime?    @map("deleted_at")
+  VerifyPhone   VerifyPhone? @relation(fields: [verifyPhoneId], references: [id])
+  verifyPhoneId Int?         @unique
+}
+
+model VerifyPhone {
+  id           Int      @id @default(autoincrement())
+  phoneNumber  String   @unique @map("phone_number") @db.VarChar()
+  verifyCode   String   @map("verify_code") @db.VarChar()
+  createdAt    DateTime @default(now()) @map("created_at")
+  phoneExpired DateTime @default(now()) @map("phone_expired")
+  Member       Member?
+}
